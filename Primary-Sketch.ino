@@ -108,16 +108,31 @@ String askOpenAI(String prompt) {
   }
   http.end();
 
-  DynamicJsonDocument res(8192);
-  deserializeJson(res, response);
+if (httpCode != 200) {
+    return "Error from OpenAI (" + String(httpCode) + "): " + response;
+  }
 
-  String reply = "";
-  if(res.containsKey("output") && res["output"].size() > 0){
-    if(res["output"][0]["content"].size() > 0){
-      reply = res["output"][0]["content"][0]["text"].as<String>();
+  DynamicJsonDocument res(16384);
+  DeserializationError error = deserializeJson(res, response);
+  if (error) {
+    return "Error parsing OpenAI response: " + String(error.c_str());
+  }
+
+  String reply = res["output_text"] | "";
+  if (reply == "" && res.containsKey("output")) {
+    JsonArray output = res["output"].as<JsonArray>();
+    for (JsonObject out : output) {
+      if (!out.containsKey("content")) continue;
+      JsonArray content = out["content"].as<JsonArray>();
+      for (JsonObject item : content) {
+        const char* text = item["text"];
+        if (text && strlen(text) > 0) {
+          reply += String(text);
+        }
+      }
     }
   }
-  if(reply == "") reply = "Sorry, no response.";
+  if (reply == "") reply = "Sorry, no response.";
 
   chatContext += "User: " + prompt + "\n";
   chatContext += "Assistant: " + reply + "\n";
@@ -156,3 +171,4 @@ void setup() {
 void loop() {
   server.handleClient();
 }
+
