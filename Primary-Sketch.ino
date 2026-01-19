@@ -11,8 +11,8 @@
 #include <ArduinoJson.h>
 
 // ===== WIFI SETTINGS =====
-const char* ssid = "ESP32_STEAM_FEST";        // <-- Change this
-const char* password = "STEAM_2026"; // <-- Change this
+const char* ssid = "Your Wifi SSID";        // <-- Change this
+const char* password = "Your Wifi password"; // <-- Change this
 
 // ===== OPENAI =====
 const char* apiKey = "API KEY HERE"; 
@@ -188,5 +188,6 @@ void setup() {
 void loop() {
   server.handleClient();
 }
+
 
 
