@@ -147,18 +147,35 @@ void handleAsk()  { server.send(200, "text/plain", askOpenAI(server.arg("q"))); 
 // ======== SETUP ========
 void setup() {
   Serial.begin(115200);
-
-  // Connect to Wi-Fi
-  WiFi.begin(ssid, password);
-  Serial.print("Connecting to Wi-Fi");
-  while(WiFi.status() != WL_CONNECTED){
-    delay(500);
-    Serial.print(".");
+  unsigned long serialStart = millis();
+  while (!Serial && millis() - serialStart < 2000) {
+    delay(10);
   }
   Serial.println();
-  Serial.println("Connected to Wi-Fi!");
-  Serial.print("ESP32 IP Address: ");
-  Serial.println(WiFi.localIP());  // <- use this IP in browser or QR code
+  Serial.println("Booting ESP32...");
+
+  // Connect to Wi-Fi
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting to Wi-Fi");
+  unsigned long wifiStart = millis();
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    if (millis() - wifiStart > 20000) {
+      Serial.println();
+      Serial.println("Wi-Fi connection timed out. Check SSID/password.");
+      break;
+    }
+  }
+  Serial.println();
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("Connected to Wi-Fi!");
+    Serial.print("ESP32 IP Address: ");
+    Serial.println(WiFi.localIP());  // <- use this IP in browser or QR code
+  } else {
+    Serial.println("Not connected. No IP address assigned.");
+  }
 
   client.setInsecure();
 
@@ -171,4 +188,5 @@ void setup() {
 void loop() {
   server.handleClient();
 }
+
 
