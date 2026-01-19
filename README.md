@@ -2,4 +2,4 @@ This code is necessary to create an ESP32 AI ASSISTANT. It can be used with an F
 
 Please check serial monitor for the web server's ip address and if the wifi is connected
 
-Please note that the OpenAI API needs to be paid for and cannot work for free.
+Please note that the OpenAI API needs to be paid for and cannot work for free and that the API key is set to responses.
